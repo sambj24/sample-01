@@ -1,0 +1,58 @@
+@startuml IDP Design
+
+header IDP Workflow
+actor Developer
+
+group Create Flow
+    Developer -[#0000FF]> backstage : [create appenv]
+    activate backstage
+        backstage -[#0000FF]> GitHubActions : [send request]
+            activate GitHubActions
+                GitHubActions -[#0000FF]> GitHub : [scaffold repo]
+                    activate GitHub
+                        GitHub -[#0000FF]> GitHub : [create repository]
+                    return
+                GitHubActions -[#0000FF]> Humanitec : [create cluster]
+                    activate Humanitec
+                        Humanitec -[#0000FF]> GCP : [create cluster]
+                    return
+            return
+    return [show status]
+End
+group Update Flow
+    Developer -[#0000FF]> backstage : [update appenv]
+    activate backstage
+        backstage -[#0000FF]> GitHubActions : [send request]
+            activate GitHubActions
+                GitHubActions -[#0000FF]> GitHub : [scaffold repo]
+                    activate GitHub
+                        GitHub -[#0000FF]> GitHub : [create repository]
+                    return
+                GitHubActions -[#0000FF]> Humanitec : [create cluster]
+                    activate Humanitec
+                        Humanitec -[#0000FF]> GCP : [create cluster]
+                    return
+            return
+    return [show status]
+End
+'group
+' All Examples https://plantuml.com/sequence-diagram
+'Examples Colored Lines
+'Bob -[#0000FF]> Alice : hello
+'Alice -[#0000FF]->Bob : ok
+'
+'Examples Lines directional
+'Alice -> Bob: Another authentication Request
+'Alice <-- Bob: Another authentication Response
+
+' Notes
+'note right: this is another note
+
+' return block
+'activate Alice
+'Alice -> Alice : some action
+'return bye
+'return
+
+
+@enduml

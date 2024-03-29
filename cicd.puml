@@ -1,0 +1,79 @@
+@startuml CICD Design
+hide footbox
+header CI/CD Create Flow
+actor Developer
+
+group Create Flow
+    group Create New Pipeline
+        Developer o-[#0000FF]> Backstage
+        note over Developer: New Provision Flow.
+        Backstage -[#0000FF]> Humanitec : [create app/env]
+        group IDP Create
+            Humanitec -[#0000FF]-> Humanitec : [create application]
+            Humanitec -[#0000FF]-> Humanitec : [create environ]
+            Humanitec -[#0000FF]-> Humanitec : [create resource def/label]
+        end
+        Backstage -[#0000FF]> GitHub : [create repository]
+        Backstage -[#0000FF]> GitHub : [create GH actions]
+        GitHub -[#0000FF]> Humanitec : [create CRD]
+        group Humanitec Deploy
+            GitHub -[#0000FF]-> GitHub : [GHA: Humanitec Build]
+            GitHub -[#0000FF]-> GitHub : [GHA: Humanitec Deploy]
+
+            GitHub -[#0000FF]> Humanitec : [update workload]
+            GitHub -[#0000FF]> Humanitec : [update resource definition]
+            GitHub -[#0000FF]> Humanitec : [TF creds: Resource  config]
+
+            group Terraform Driver:Module
+                Humanitec --[#0000FF]> Terraform : [base env]
+                Humanitec -[#0000FF]> Terraform : [Google Cloud SQL]
+                Humanitec -[#0000FF]> Terraform : [Google Cloud DNS]
+                Humanitec -[#0000FF]> Terraform : [Service Account:GSA]
+            end
+
+            group Cloud Deploy
+                group Create GCP Project
+                    Terraform -[#0000FF]> GCP : [Google Cloud Storage:state file]
+                    Terraform -[#0000FF]> GCP : [Google Cloud SQL]
+                    Terraform -[#0000FF]> GCP : [Service Account:GSA]
+                end
+                group Create GKE Cluster
+                    Humanitec -[#0000FF]> GCP : [Create GKE Namespace]
+                    Humanitec -[#0000FF]> GCP : [Create GKE Ingress]
+                    Humanitec -[#0000FF]> GCP : [Create GKE Deployment]
+                end
+            end
+        end
+    end
+
+    group
+        group Modify Pipeline
+            Developer o-[#0000FF]> GitHub : [update score.yaml]
+            note over Developer: Modify Flow.
+            group Humanitec Deploy
+                GitHub -[#0000FF]-> GitHub : [GHA: Humanitec Build]
+                GitHub -[#0000FF]-> GitHub : [GHA: Humanitec Deploy]
+
+                GitHub -[#0000FF]> Humanitec : [update workload]
+                GitHub -[#0000FF]> Humanitec : [update resource definition]
+                GitHub -[#0000FF]> Humanitec : [TF creds: Resource  config]
+
+                group Terraform Driver:Module
+                    Humanitec -[#0000FF]> Terraform : [provision resources]
+                end
+
+                group Cloud Deploy
+                    group Modify GCP Project
+                        Terraform -[#0000FF]> GCP : [Google Cloud Storage:state file]
+                        Terraform -[#0000FF]> GCP : [Modify GCP resources]
+                    end
+                    group Update GKE Cluster
+                        Humanitec -[#0000FF]> GCP : [Update GKE Namespace]
+                    end
+                end
+            end
+
+        end
+
+
+        @endyaml

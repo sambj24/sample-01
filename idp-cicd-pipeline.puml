@@ -1,0 +1,46 @@
+@startuml IDP Design
+header IDP-CICD Flow
+actor Developer
+
+'Inside the Create Flow
+group Create Flow
+    Developer -> "Portal"
+    group Continuous Integration
+        Portal -> GitHub : [create env]
+        GitHub -> Humanitec : [provision resources]
+                Humanitec-->GitHub : [status]
+    end
+    group Operator
+        Humanitec --> Humanitec : [create envs]
+        Humanitec --> Humanitec : [create application]
+        Humanitec --> Humanitec : [create resources]
+        Humanitec --> Humanitec : [resource definition]
+        Humanitec --> Humanitec : [GKE NameSpace]
+        Humanitec --> Humanitec : [GKE Ingress Type]
+        Humanitec --> Humanitec : [TF credentials]
+        Humanitec --> Humanitec : [TF base env]
+        Humanitec --> Humanitec : [TF GCS Type]
+        Humanitec --> Humanitec : [TF Cloud Type]
+        Humanitec --> Humanitec : [TF GSA Type]
+        Humanitec --> Humanitec : [TF Cloud DNS]
+
+    end
+
+    group Continuous Delivery
+        Humanitec -> GCP : [sends config to GCP]
+        note right : Service account\nGSM
+        GCP->GKE
+        note right : GKE Cluster\nNamespace\nDB Created\nDNS\nBucket
+        GKE-->Humanitec : visibility
+
+    end
+    GKE-->Portal : visibility
+
+
+end
+
+
+
+
+
+@endyaml

@@ -1,0 +1,10 @@
+@startyaml
+'YAML File Documentation
+fruit: Apple
+size: Large
+color: 
+  - Red
+  - Green
+
+
+@endyaml
